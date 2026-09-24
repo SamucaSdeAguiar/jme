@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import hamburguerImg from "./assets/hamburguer.png";
+import pizzaImg from "./assets/pizza.png";
+import sushiImg from "./assets/sushi.png";
 
 /* ==========================================================================
    1. CONSTANTES — os "números e dados" do jogo, tudo fora do componente
@@ -27,7 +30,7 @@ const EDGES = [];
 ZONE_DEFS.forEach((z) => z.neighbors.forEach((n) => { if (z.id < n) EDGES.push([z.id, n]); }));
 
 // BALANCEAMENTO DO JOGO — mexa aqui para deixar mais fácil/difícil/rápido.
-const PLAYER_COLORS = ["#ff2d78", "#3ddc84", "#38bdf8"]; // cor de cada jogador (1º = você)
+const BOT_COLORS = ["#3ddc84", "#38bdf8"]; // cores dos bots (o time do humano usa a cor do time escolhido)
 const STARTING_MONEY = 150;      // dinheiro inicial de cada jogador
 const STARTING_BIKES = 3;        // entregadores em cada território inicial
 const BASE_HIRE_COST = 50;       // preço da 1ª contratação
@@ -48,6 +51,15 @@ const COLORS = {
   success: "#4ade80",
   neutral: "#2b2940",
 };
+
+// TIME ESCOLHIDO NA TELA "ESCOLHER TIME": cada um tem um nome, uma cor
+// (usada nas suas zonas/HUD) e a imagem do time (vinda de Times.jsx).
+const TEAM_INFO = {
+  hamburguer: { label: "Hambúrguer", color: "#f2542d", img: hamburguerImg },
+  pizza: { label: "Pizza", color: "#ffd23f", img: pizzaImg },
+  sushi: { label: "Sushi", color: "#4ade80", img: sushiImg },
+};
+const DEFAULT_TEAM = "hamburguer";
 
 // TEXTOS DAS CARTAS — adicione, remova ou edite frases nestas 3 listas
 // para mudar o conteúdo educativo sem tocar na lógica das cartas.
@@ -116,6 +128,21 @@ function PixelBike({ color = "#38bdf8", size = 22 }) {
 
 // Geram o estilo "retrô" (borda grossa + sombra dura, sem cantos
 // arredondados) usado em todos os painéis e botões da interface.
+// Ícone de um jogador: você aparece com a imagem do seu time (hambúrguer/
+// pizza/sushi); bots continuam com o PixelBike desenhado em SVG.
+function PlayerIcon({ player, size = 20 }) {
+  if (!player) return null;
+  if (player.isBot) return <PixelBike color={player.color} size={size} />;
+  const info = TEAM_INFO[player.team] || TEAM_INFO[DEFAULT_TEAM];
+  return (
+    <img
+      src={info.img}
+      alt={info.label}
+      style={{ width: size, height: size, objectFit: "contain", imageRendering: "pixelated" }}
+    />
+  );
+}
+
 function pixelPanelStyle(borderColor = COLORS.panelBorder) {
   return { backgroundColor: COLORS.panel, border: `3px solid ${borderColor}`, boxShadow: "4px 4px 0px rgba(0,0,0,0.5)" };
 }
@@ -287,7 +314,7 @@ function computeBotTurn(bot, zonesIn, playersIn) {
 /* ==========================================================================
    3. COMPONENTE PRINCIPAL — guarda o estado do jogo e desenha a tela.
    ========================================================================== */
-export default function GuerraDosEntregadores() {
+export default function GuerraDosEntregadores({ team, onSair } = {}) {
   // ---- ESTADO: tudo que pode mudar durante a partida ----
   const [screen, setScreen] = useState("setup"); // "setup" | "playing" | "gameover"
   const [numBots, setNumBots] = useState(1);
@@ -314,12 +341,14 @@ export default function GuerraDosEntregadores() {
   // Monta o jogo do zero: cria os jogadores (você + bots) e distribui
   // 2 territórios iniciais para cada um; o resto fica neutro.
   function startGame(bots) {
+    const teamKey = team || DEFAULT_TEAM;
     const totalPlayers = 1 + bots;
     const newPlayers = Array.from({ length: totalPlayers }).map((_, i) => ({
       id: i,
       name: i === 0 ? "Você" : `Bot ${i}`,
       isBot: i !== 0,
-      color: PLAYER_COLORS[i],
+      team: i === 0 ? teamKey : null,
+      color: i === 0 ? TEAM_INFO[teamKey].color : BOT_COLORS[i - 1],
       money: STARTING_MONEY,
       hiresMade: 0,
     }));
@@ -528,6 +557,17 @@ export default function GuerraDosEntregadores() {
             Modo solo: conquiste territórios neutros e roube a frota dos bots pelo mapa da cidade.
           </p>
 
+          <div className="mb-4 p-2 flex items-center gap-2" style={{ backgroundColor: COLORS.road, border: `2px solid ${COLORS.panelBorder}` }}>
+            <img
+              src={TEAM_INFO[team || DEFAULT_TEAM].img}
+              alt={TEAM_INFO[team || DEFAULT_TEAM].label}
+              style={{ width: 32, height: 32, objectFit: "contain", imageRendering: "pixelated" }}
+            />
+            <p className="text-xs" style={{ color: COLORS.ink }}>
+              Seu time: <strong style={{ color: TEAM_INFO[team || DEFAULT_TEAM].color }}>{TEAM_INFO[team || DEFAULT_TEAM].label}</strong>
+            </p>
+          </div>
+
           <div className="mb-4 p-3" style={{ backgroundColor: COLORS.road, border: `2px solid ${COLORS.panelBorder}` }}>
             <p className="text-xs font-bold mb-1" style={{ color: COLORS.accentYellow }}>Como jogar</p>
             <ul className="text-xs space-y-1" style={{ color: COLORS.ink }}>
@@ -551,6 +591,12 @@ export default function GuerraDosEntregadores() {
           <button onClick={() => startGame(numBots)} className="w-full py-3 font-bold text-base" style={pixelButtonStyle(COLORS.success)}>
             ▶ Começar Jogo
           </button>
+
+          {onSair && (
+            <button onClick={onSair} className="w-full py-2 mt-2 font-bold text-xs" style={pixelButtonStyle("#555")}>
+              ⬅ Voltar ao Menu
+            </button>
+          )}
         </div>
       </div>
     );
@@ -572,7 +618,7 @@ export default function GuerraDosEntregadores() {
             {ranked.map((p, i) => (
               <div key={p.id} className="flex items-center justify-between p-2" style={{ backgroundColor: COLORS.road, border: `2px solid ${p.color}` }}>
                 <span className="flex items-center gap-2 text-sm font-bold" style={{ color: COLORS.ink }}>
-                  <PixelBike color={p.color} size={20} /> {i === 0 ? "👑 " : ""}
+                  <PlayerIcon player={p} size={20} /> {i === 0 ? "👑 " : ""}
                   {p.isBot ? "🤖" : "👤"} {p.name}
                 </span>
                 <span className="text-xs" style={{ color: COLORS.ink, fontFamily: "monospace" }}>
@@ -584,6 +630,11 @@ export default function GuerraDosEntregadores() {
           <button onClick={() => setScreen("setup")} className="w-full py-3 font-bold" style={pixelButtonStyle(COLORS.success)}>
             🔁 Jogar novamente
           </button>
+          {onSair && (
+            <button onClick={onSair} className="w-full py-2 mt-2 font-bold text-xs" style={pixelButtonStyle("#555")}>
+              ⬅ Voltar ao Menu
+            </button>
+          )}
         </div>
       </div>
     );
@@ -600,6 +651,11 @@ export default function GuerraDosEntregadores() {
         <span className="text-xs font-bold px-2 py-1" style={{ color: COLORS.bgDeep, backgroundColor: currentPlayer.color }}>
           Vez de: {currentPlayer.isBot ? "🤖 " : "👤 "}{currentPlayer.name}
         </span>
+        {onSair && (
+          <button onClick={onSair} className="text-xs font-bold px-2 py-1" style={pixelButtonStyle("#555")}>
+            ⬅ Menu
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col md:flex-row gap-3">
@@ -646,7 +702,7 @@ export default function GuerraDosEntregadores() {
             {players.map((p) => (
               <div key={p.id} className="flex items-center justify-between py-1" style={{ opacity: getZonesOf(zones, p.id).length === 0 ? 0.4 : 1 }}>
                 <span className="text-xs font-bold flex items-center gap-1" style={{ color: p.color }}>
-                  <PixelBike color={p.color} size={16} />
+                  <PlayerIcon player={p} size={16} />
                   {p.isBot ? "🤖" : "👤"} {p.name}
                   {p.id === currentPlayer.id ? " ◀" : ""}
                 </span>

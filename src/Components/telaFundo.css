@@ -1,0 +1,38 @@
+.pagina {
+    width: 100%;
+    height: 100vh;
+
+    background-image: url("../assets/Fundo.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+
+    padding-top: 580px;
+    box-sizing: border-box;
+}
+
+.pagina button {
+    width: 400px;
+    height: 60px;
+
+    border-radius: 20px;
+    margin-bottom: 10px;
+
+    border: none;
+    font-size: 25px;
+    color: aliceblue;
+    background-color: rgb(236, 82, 62);
+
+    cursor: pointer;
+    
+}
+
+.pagina button:hover {
+    background-color: rgb(47, 40, 73);
+    transform: scale(1.05);
+}

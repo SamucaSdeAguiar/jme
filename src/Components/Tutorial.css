@@ -1,0 +1,159 @@
+.tutorial {
+    width: 100%;
+    height: 100vh;
+
+    background-image: url("../assets/Fundo.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+
+/* Caixa principal */
+.tutorial-caixa {
+    width: 850px;
+    max-height: 85vh;
+
+    background-color: rgba(15, 20, 25, 0.95);
+
+    border: 4px solid #ffffff;
+    border-radius: 20px;
+
+    padding: 30px;
+
+    color: white;
+
+    box-sizing: border-box;
+
+    overflow-y: auto;
+}
+
+
+/* Título */
+.tutorial-caixa h1 {
+    text-align: center;
+
+    font-size: 40px;
+
+    margin-top: 0;
+    margin-bottom: 30px;
+
+    letter-spacing: 3px;
+}
+
+
+/* Cada parte do tutorial */
+.tutorial-conteudo section {
+    margin-bottom: 25px;
+}
+
+
+/* Títulos das partes */
+.tutorial-conteudo h2 {
+    font-size: 22px;
+
+    margin-bottom: 10px;
+
+    border-bottom: 2px solid white;
+
+    padding-bottom: 5px;
+}
+
+
+/* Textos */
+.tutorial-conteudo p {
+    font-size: 17px;
+
+    line-height: 1.5;
+
+    margin: 6px 0;
+}
+
+
+/* Área das quatro ações */
+.acoes {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 12px;
+}
+
+
+/* Cada ação */
+.acoes div {
+    background-color: #26313d;
+
+    border: 2px solid #465565;
+
+    border-radius: 12px;
+
+    padding: 15px;
+
+    transition: 0.2s;
+}
+
+
+/* Efeito quando passa o mouse */
+.acoes div:hover {
+    transform: scale(1.03);
+
+    background-color: #344454;
+}
+
+
+/* Nome da ação */
+.acoes strong {
+    display: block;
+
+    font-size: 18px;
+
+    margin-bottom: 6px;
+}
+
+
+/* Explicação da ação */
+.acoes span {
+    font-size: 14px;
+
+    color: #d5d5d5;
+}
+
+
+/* Botão voltar */
+.voltar {
+    display: block;
+
+    width: 300px;
+    height: 55px;
+
+    margin: 25px auto 0;
+
+    border: none;
+    border-radius: 15px;
+
+    background-color: white;
+    color: #111;
+
+    font-size: 18px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+/* Hover do botão */
+.voltar:hover {
+    transform: scale(1.05);
+
+    background-color: #dddddd;
+}
