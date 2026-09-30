@@ -34,7 +34,7 @@ const BOT_COLORS = ["#3ddc84", "#38bdf8"]; // cores dos bots (o time do humano u
 const STARTING_MONEY = 150;      // dinheiro inicial de cada jogador
 const STARTING_BIKES = 3;        // entregadores em cada território inicial
 const BASE_HIRE_COST = 50;       // preço da 1ª contratação
-const HIRE_COST_STEP = 10;       // quanto o preço sobe a cada contratação
+const HIRE_COST_STEP = 5;       // quanto o preço sobe a cada contratação
 const INCOME_PER_BIKE = 20;      // renda máxima (100% de conformidade) por entregador
 const ROUND_LIMIT = 8;           // nº de rodadas até decidir por pontos
 
