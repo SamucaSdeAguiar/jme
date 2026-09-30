@@ -290,14 +290,23 @@ function computeBotTurn(bot, zonesIn, playersIn) {
     const myZones = getZonesOf(zones, bot.id).filter((z) => z.bikes >= 2);
     if (myZones.length === 0) break;
     let bestAttack = null;
-    myZones.forEach((z) => {
-      z.neighbors.forEach((nId) => {
-        const n = zones.find((zz) => zz.id === nId);
-        if (n.ownerId === bot.id) return;
-        const advantage = z.bikes - n.bikes;
-        if (!bestAttack || advantage > bestAttack.advantage) bestAttack = { fromId: z.id, toId: nId, advantage };
-      });
-    });
+for (const z of myZones) {
+  for (const nId of z.neighbors) {
+    const n = zones.find((zz) => zz.id === nId);
+
+    if (!n || n.ownerId === bot.id) continue;
+
+    const advantage = z.bikes - n.bikes;
+
+    if (!bestAttack || advantage > bestAttack.advantage) {
+      bestAttack = {
+        fromId: z.id,
+        toId: nId,
+        advantage
+      };
+    }
+  }
+}
     if (!bestAttack || bestAttack.advantage < -1) break;
     const result = resolveAttack(zones, players, bestAttack.fromId, bestAttack.toId, i === 0 ? attackBonus : 0);
     zones = result.zones;
@@ -422,7 +431,7 @@ export default function GuerraDosEntregadores({ team, onSair } = {}) {
       processingRef.current = false;
     }, 750);
     return () => clearTimeout(timer);
-  }, [currentIndex, screen]);
+  }, [currentIndex, screen, players, zones, turnCount]);
 
   // ---- AÇÕES DO JOGADOR HUMANO ----
   // Cada função abaixo corresponde a um clique seu na interface.
